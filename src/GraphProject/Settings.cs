@@ -8,17 +8,7 @@ internal static class Settings
 
     static Settings()
     {
-        IConfiguration config;
-        //https://stackoverflow.com/questions/65110479/how-to-get-values-from-appsettings-json-in-a-console-application-using-net-core
-        try
-        {
-            var builder = new ConfigurationBuilder()
-                    .SetBasePath(Directory.GetCurrentDirectory())
-                    .AddJsonFile("config.json", optional: false);
-
-            config = builder.Build();
-        }
-        catch(Exception)
+        if(!GetConfiguration(out var config))
         {
             return;
         }
@@ -49,4 +39,23 @@ internal static class Settings
     {
         return config.GetValue<string>(fieldName, string.Empty);
     }
+
+    private static bool GetConfiguration(out IConfiguration? config)
+    {
+        try
+        {
+            //https://stackoverflow.com/questions/65110479/how-to-get-values-from-appsettings-json-in-a-console-application-using-net-core
+            var builder = new ConfigurationBuilder()
+                    .SetBasePath(Directory.GetCurrentDirectory())
+                    .AddJsonFile("config.json", optional: false);
+
+            config = builder.Build();
+            return true;
+        }
+        catch(Exception)
+        {
+            config = null;
+            return false;
+        }
+    } 
 }
