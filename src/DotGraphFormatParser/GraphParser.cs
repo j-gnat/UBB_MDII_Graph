@@ -2,8 +2,10 @@
 
 public class GraphParser
 {
-    public void HelloWorld()
+    //^\s*(digraph|graph)(\s*\w*\s*)(\{([\s\S]*)\}\s*$)
+    public static bool LoadGraph(string path, out Graph graph)
     {
-        Console.WriteLine("Hello, World!");
+        graph = new();
+        return true;
     }
 }

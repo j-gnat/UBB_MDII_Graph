@@ -1,10 +1,12 @@
 
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Primitives;
 internal static class Settings
 {
     public static string DotFileDirectory = string.Empty;
     public static List<string> DotFileNames = [];
     public static List<string> DotFilesPossibleExtensions = [];
+    public static string StartElementName = string.Empty;
 
     static Settings()
     {
@@ -13,13 +15,14 @@ internal static class Settings
             return;
         }
 
-        DotFileDirectory = GetStringVariable("DotFileDirectory", config);
+        DotFileDirectory = GetStringVariable("DotFileDirectory", config!);
         DotFileNames.AddRange(
-                GetListOfStringsVariable("DotFileNames", config)
+                GetListOfStringsVariable("DotFileNames", config!)
             );
         DotFilesPossibleExtensions.AddRange(
-                GetListOfStringsVariable("DotFilesPossibleExtensions", config)
+                GetListOfStringsVariable("DotFilesPossibleExtensions", config!)
             );
+        StartElementName = GetStringVariable("StartElementName", config!);
     }
 
     private static List<string> GetListOfStringsVariable(
