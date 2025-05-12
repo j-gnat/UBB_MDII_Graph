@@ -1,6 +1,5 @@
 
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Primitives;
 internal static class Settings
 {
     public static string DotFileDirectory = string.Empty;

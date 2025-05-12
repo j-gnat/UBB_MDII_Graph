@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\GraphProject\GraphProject.csproj" />
+    <ProjectReference Include="..\..\src\DotGraphFormatParser\DotGraphFormatParser.csproj" />
   </ItemGroup>
 
 </Project>
