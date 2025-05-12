@@ -7,7 +7,6 @@ public static class Program
     private static Graph _graph = new();
     private static List<string> _result = [];
     private static string _lastNode = string.Empty;
-    private static long _counter = 0;
     static Program()
     {
         _graph.Nodes.Add("0"); // first element 
