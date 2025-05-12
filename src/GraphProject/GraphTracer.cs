@@ -54,13 +54,7 @@ public static class GraphTracer
                     visitedElements.Push(newElementToVisit);
                     elementsToVisit.First().RemoveAt(elementsToVisit.First().Count -1);
 
-                    if (!graph.Directions.TryGetValue(newElementToVisit, out var newDirections))
-                    {
-                        visitedElements.Pop();
-                        continue;
-                    }
-
-                    if (newDirections.Contains(lastNode))
+                    if (visitedElements.Contains(lastNode))
                     {
                         foundPathsList.Add([ .. visitedElements.Reverse()]);
                         if (visitedElements.Count > bestPath.Count)
@@ -68,10 +62,17 @@ public static class GraphTracer
                             bestPath.Clear();
                             bestPath.AddRange(visitedElements.Reverse());
                         }
+                        visitedElements.Pop();
+                        continue;
+                    }
+
+                    if (!graph.Directions.TryGetValue(newElementToVisit, out var newDirections))
+                    {
+                        visitedElements.Pop();
+                        continue;
                     }
 
                     elementsToVisit.Push([.. newDirections.Where(e => !visitedElements.Contains(e) 
-                        && e != lastNode
                         && e != Settings.StartElementName) 
                         ]);
                 }
@@ -81,7 +82,6 @@ public static class GraphTracer
                     visitedElements.Pop();
                 }
             }
-            bestPath.Add(lastNode);
         }
         Debug.Print(counter.ToString());
         return foundPathsList.Count > 0;

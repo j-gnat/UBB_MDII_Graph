@@ -1,35 +1,36 @@
-﻿using System.Diagnostics;
+using BenchmarkDotNet.Attributes;
 using DotGraphFormatParser;
+using GraphProject;
 
-namespace GraphProject;
-public static class Program
+namespace GraphProjectBenchmark;
+
+[ShortRunJob]
+public class GraphTracerBenchmark
 {
-    // private static Graph _graph = GenerateGraph(10, 90);
-    private static Graph _graph = GenerateGraph(5, 20);
+    private Graph? _graph;
+    [Params(10, 15, 20)]
+    public int _nodes;
 
-    public static int Main()
+    [Params(90, 210, 380)]
+    public int _edges;
+
+    [GlobalSetup]
+    public void Setup()
     {
-        int returnCode;
+        _graph = GenerateGraph(_nodes, _edges);
+    }
 
-        try
-        {
-            if (GraphTracer.GetTheLongestPath(_graph, out var foundPathsList, out var _result))
-            {
-                _result.ForEach(e => Console.Write(_result.Last() == e ? $"{e}" : $"{e} -> "));
-            }
-            returnCode = 0;
-        }
-        catch(Exception ex)
-        {
-            Debug.Print(ex.Message);
-            returnCode = -1;
-        }
-        return returnCode;
+    [Benchmark]
+    public void BenchmarkGraph()
+    {
+        GraphTracer.GetTheLongestPath(_graph!, out _, out _);
     }
 
     private static Graph GenerateGraph(int nodeCount, int edgeCount)
     {
         var graph = new Graph();
+        var maxEdgeCount = nodeCount * (nodeCount - 1);
+        edgeCount = maxEdgeCount < edgeCount ? maxEdgeCount : edgeCount;
 
         for (int c = 0; c < nodeCount; c++)
         {
@@ -59,6 +60,3 @@ public static class Program
         return graph;
     }
 }
-
-
-
