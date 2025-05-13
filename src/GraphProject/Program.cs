@@ -1,19 +1,22 @@
-﻿using System.Diagnostics;
-using DotGraphFormatParser;
+﻿using DotGraphFormatParser;
+using System.Diagnostics;
 
 namespace GraphProject;
 public static class Program
 {
-    // private static Graph _graph = GenerateGraph(10, 90);
-    private static Graph _graph = GenerateGraph(5, 20);
-
     public static int Main()
     {
-        int returnCode;
-
+        int returnCode = 0;
         try
         {
-            if (GraphTracer.GetTheLongestPath(_graph, out var foundPathsList, out var _result))
+            string path = Path.Combine(Settings.DotFileDirectory, Settings.DotFileNames[0]);
+            if (!GraphParser.LoadGraph(path, out var graph))
+            {
+                returnCode = 1;
+                return returnCode;
+            }
+
+            if (GraphTracer.GetTheLongestPath(graph, out var foundPathsList, out var _result))
             {
                 _result.ForEach(e => Console.Write(_result.Last() == e ? $"{e}" : $"{e} -> "));
             }
@@ -22,41 +25,11 @@ public static class Program
         catch(Exception ex)
         {
             Debug.Print(ex.Message);
-            returnCode = -1;
+            returnCode = 1;
         }
+
         return returnCode;
-    }
-
-    private static Graph GenerateGraph(int nodeCount, int edgeCount)
-    {
-        var graph = new Graph();
-
-        for (int c = 0; c < nodeCount; c++)
-        {
-            graph.Nodes.Add($"{c}");
-        }
-
-        var random = new Random();
-        int i = 0;
-        while (i < edgeCount)
-        {
-            var fromNode = graph.Nodes[random.Next(graph.Nodes.Count)];
-            var toNode = graph.Nodes[random.Next(graph.Nodes.Count)];
-
-            if (!graph.Directions.TryGetValue(fromNode, out _))
-            {
-                graph.Directions[fromNode] = [];
-            }
-
-            if (fromNode != toNode 
-                && !graph.Directions[fromNode].Contains(toNode))
-            {
-                graph.Directions[fromNode].Add(toNode);
-                i++;
-            }
-        }
-
-        return graph;
+        
     }
 }
 
