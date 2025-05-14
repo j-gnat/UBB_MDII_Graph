@@ -12,7 +12,7 @@ public class GraphTracerBenchmark
     private Graph? _graph;
     static string WhereAmI([CallerFilePath] string callerFilePath = "") => callerFilePath;
 
-    [Params("test1.gv", "test2.gv")]
+    [Params("test1.gv", "test2.gv", "test3.gv")]
     public string? _fileName;
 
     [GlobalSetup]

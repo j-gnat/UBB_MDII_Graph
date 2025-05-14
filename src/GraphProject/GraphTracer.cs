@@ -16,12 +16,11 @@ public static class GraphTracer
     public static bool GetTheLongestPath(Graph graph, out List<string> bestPath, int searchTimeLimitSeconds = 28)
     {
         var stopwatch = Stopwatch.StartNew();
-        searchTimeLimitSeconds *= 1000;
         bestPath = [];
 
-        if (graph.Nodes is null 
+        if (graph.Nodes == null
             || graph.Nodes.Count < 2
-            || graph.Directions is null
+            || graph.Directions == null
             || graph.Directions.Count < 2)
         {
             return false;
@@ -29,57 +28,46 @@ public static class GraphTracer
 
         var firstNode = graph.Nodes.First();
         var lastNode = graph.Nodes.Last();
+        var visited = new HashSet<string>();
+        var currentPath = new Stack<string>();
+        var localBestPath = new List<string>();
 
-        var visitedElements = new HashSet<string>();
-        var elementsToVisit = new Stack<HashSet<string>>();
-
-        visitedElements.Add(firstNode);
-
-        if(graph.Directions.TryGetValue(firstNode, out var directions))
+        //This function is inside function only to keep it all as static.
+        //It was easier to rework the previous version of the code this way...
+        void DFS(string node)
         {
-            elementsToVisit.Push(new HashSet<string>(directions));
+            if (stopwatch.Elapsed.TotalSeconds > searchTimeLimitSeconds)
+                return;
 
-            while(elementsToVisit.Count > 0)
+            visited.Add(node);
+            currentPath.Push(node);
+
+            if (node == lastNode)
             {
-                if (bestPath.Count > 0 & stopwatch.ElapsedMilliseconds > searchTimeLimitSeconds)
+                var path = currentPath.Reverse().ToList();
+
+                if (path.Count > localBestPath.Count)
                 {
-                    break;
-                }
-
-                if (elementsToVisit.First().Count > 0)
-                {
-                    string newElementToVisit = elementsToVisit.First().First();
-                    visitedElements.Add(newElementToVisit);
-                    elementsToVisit.First().Remove(elementsToVisit.First().First());
-
-                    if (visitedElements.Contains(lastNode))
-                    {
-                        if (visitedElements.Count > bestPath.Count)
-                        {
-                            bestPath.Clear();
-                            bestPath.AddRange(visitedElements);
-                        }
-                        visitedElements.Remove(visitedElements.Last());
-                        continue;
-                    }
-
-                    if (!graph.Directions.TryGetValue(newElementToVisit, out var newDirections))
-                    {
-                        visitedElements.Remove(visitedElements.Last());
-                        continue;
-                    }
-
-                    elementsToVisit.Push([.. newDirections.Where(e => !visitedElements.Contains(e) 
-                        && e != firstNode) 
-                        ]);
-                }
-                else
-                {
-                    elementsToVisit.Pop();
-                    visitedElements.Remove(visitedElements.First());
+                    localBestPath = new List<string>(path);
                 }
             }
+            else if (graph.Directions.TryGetValue(node, out var neighbors))
+            {
+                foreach (var neighbor in neighbors)
+                {
+                    if (!visited.Contains(neighbor))
+                    {
+                        DFS(neighbor);
+                    }
+                }
+            }
+
+            currentPath.Pop();
+            visited.Remove(node);
         }
+
+        DFS(firstNode);
+        bestPath = localBestPath;
         return bestPath.Count > 0;
     }
 }
