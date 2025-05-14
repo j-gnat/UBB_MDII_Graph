@@ -1,5 +1,4 @@
 ﻿using System.Text.RegularExpressions;
-using Microsoft.VisualBasic;
 
 namespace DotGraphFormatParser;
 
@@ -119,7 +118,7 @@ public class GraphParser
 
     private static void AddNode(string node, List<string> nodes)
     {
-        string pattern = @"^\w+";
+        string pattern = @"\w+";
         Regex regex = new(pattern);
         Match match = regex.Match(node);
 
