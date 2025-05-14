@@ -1,35 +1,81 @@
 ﻿using DotGraphFormatParser;
-using System.Diagnostics;
 
 namespace GraphProject;
 public static class Program
 {
-    public static int Main()
+    private static readonly string s_outputFileName = "output.txt";
+    public static int Main(string[] args)
     {
-        int returnCode = 0;
+        if (args.Length != 1)
+        {
+            Console.WriteLine("Expected one argument as input");
+            return 1;
+        }
+
+        if (args[0] == "-h"
+            || args[0] == "-help")
+        {
+            PrintHelpMessage();
+            return 0;
+        }
+
+        string path = Path.Combine(args[0]);
+
+        return ProcessTheFile(path) ? 0 : 1;
+        
+    }
+
+    private static void PrintHelpMessage()
+    {
+        Console.WriteLine("Usage:");
+        Console.WriteLine("  GraphProject <path-to-dot-file>");
+        Console.WriteLine();
+        Console.WriteLine("Description:");
+        Console.WriteLine("  This program expects a single argument: the path to a DOT format file describing a directed graph.");
+        Console.WriteLine("  If parsing succeeds, the program generates an output file in the program directory containing the longest path found.");
+        Console.WriteLine("  If an error occurs, the program will return exit code 1.");
+        Console.WriteLine();
+        Console.WriteLine("Press Enter to exit...");
+        Console.ReadLine();
+    }
+
+    private static bool ProcessTheFile(string path)
+    {
         try
         {
-            string path = Path.Combine(Settings.DotFileDirectory, Settings.DotFileNames[0]);
             if (!GraphParser.LoadGraph(path, out var graph))
             {
-                returnCode = 1;
-                return returnCode;
+                Console.WriteLine($"Could not parse the file:");
+                Console.WriteLine($"{path}");
+                Console.ReadLine();
+                return false;
             }
 
-            if (GraphTracer.GetTheLongestPath(graph, out var foundPathsList, out var _result))
+            if (!GraphTracer.GetTheLongestPath(graph, out var foundPathsList, out var _result))
             {
-                _result.ForEach(e => Console.Write(_result.Last() == e ? $"{e}" : $"{e} -> "));
+                Console.WriteLine("No route found in the graph.");
+                Console.ReadLine();
+                return false;
             }
-            returnCode = 0;
+
+            string outputText = string.Empty;
+            _result.ForEach(e => outputText += _result.Last() == e ? $"{e}" : $"{e} -> ");
+            Console.WriteLine(outputText);
+            WriteOutputFile(outputText);
         }
         catch(Exception ex)
         {
-            Debug.Print(ex.Message);
-            returnCode = 1;
+            Console.WriteLine(ex.Message);
+            return false;
         }
+        return true;
+    }
 
-        return returnCode;
-        
+    private static void WriteOutputFile(string content)
+    {
+        var outputPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, s_outputFileName);
+        using var writer = new StreamWriter(outputPath, false);
+        writer.Write(content);
     }
 }
 

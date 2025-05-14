@@ -29,15 +29,16 @@ public static class GraphTracer
             return false;
         }
 
+        var firstNode = graph.Nodes.First();
         var lastNode = graph.Nodes.Last();
         var visitedElements = new Stack<string>();
 
-        visitedElements.Push(Settings.StartElementName);
+        visitedElements.Push(firstNode);
         var elementsToVisit = new Stack<List<string>>();
 
         BigInteger counter = 0;
 
-        if(graph.Directions.TryGetValue(Settings.StartElementName, out var directions))
+        if(graph.Directions.TryGetValue(firstNode, out var directions))
         {
             elementsToVisit.Push(directions);
             while(elementsToVisit.Count > 0)
@@ -73,7 +74,7 @@ public static class GraphTracer
                     }
 
                     elementsToVisit.Push([.. newDirections.Where(e => !visitedElements.Contains(e) 
-                        && e != Settings.StartElementName) 
+                        && e != firstNode) 
                         ]);
                 }
                 else
