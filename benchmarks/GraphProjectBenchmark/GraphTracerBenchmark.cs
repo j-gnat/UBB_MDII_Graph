@@ -1,62 +1,37 @@
 using BenchmarkDotNet.Attributes;
 using DotGraphFormatParser;
 using GraphProject;
+using System.Runtime.CompilerServices;
 
 namespace GraphProjectBenchmark;
 
 [ShortRunJob]
 public class GraphTracerBenchmark
 {
-    private Graph? _graph;
-    [Params(10, 15, 20)]
-    public int _nodes;
 
-    [Params(90, 210, 380)]
-    public int _edges;
+    private Graph? _graph;
+    static string WhereAmI([CallerFilePath] string callerFilePath = "") => callerFilePath;
+
+    [Params("test1.gv", "test2.gv")]
+    public string? _fileName;
 
     [GlobalSetup]
     public void Setup()
     {
-        _graph = GenerateGraph(_nodes, _edges);
+        string path = Path.Combine(Path.GetDirectoryName(WhereAmI())!, "assets", _fileName!);
+        if (File.Exists(path))
+        {
+            GraphParser.LoadGraph(path, out _graph);
+        }
+        else
+        {
+            throw new DirectoryNotFoundException($"Could not locate 'testdata' directory: {path}");
+        }
     }
 
     [Benchmark]
     public void BenchmarkGraph()
     {
-        GraphTracer.GetTheLongestPath(_graph!, out _, out _);
-    }
-
-    private static Graph GenerateGraph(int nodeCount, int edgeCount)
-    {
-        var graph = new Graph();
-        var maxEdgeCount = nodeCount * (nodeCount - 1);
-        edgeCount = maxEdgeCount < edgeCount ? maxEdgeCount : edgeCount;
-
-        for (int c = 0; c < nodeCount; c++)
-        {
-            graph.Nodes.Add($"{c}");
-        }
-
-        var random = new Random();
-        int i = 0;
-        while (i < edgeCount)
-        {
-            var fromNode = graph.Nodes[random.Next(graph.Nodes.Count)];
-            var toNode = graph.Nodes[random.Next(graph.Nodes.Count)];
-
-            if (!graph.Directions.TryGetValue(fromNode, out _))
-            {
-                graph.Directions[fromNode] = [];
-            }
-
-            if (fromNode != toNode 
-                && !graph.Directions[fromNode].Contains(toNode))
-            {
-                graph.Directions[fromNode].Add(toNode);
-                i++;
-            }
-        }
-
-        return graph;
+        GraphTracer.GetTheLongestPath(_graph!, out var result, 1);
     }
 }

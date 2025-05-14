@@ -55,6 +55,7 @@ nunit-*.xml
 
 #VS files
 .vscode/
+.vs/
 
 #BenchmarkFiles
 BenchmarkDotNet.Artifacts/

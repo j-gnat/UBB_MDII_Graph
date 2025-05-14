@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "GraphProject": {
+      "commandName": "Project",
+      "commandLineArgs": "\"C:\\WorkingDirectory\\GraphCase1.gv\""
+    }
+  }
+}

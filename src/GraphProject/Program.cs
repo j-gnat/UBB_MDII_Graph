@@ -51,7 +51,7 @@ public static class Program
                 return false;
             }
 
-            if (!GraphTracer.GetTheLongestPath(graph, out var foundPathsList, out var _result))
+            if (!GraphTracer.GetTheLongestPath(graph, out var _result))
             {
                 Console.WriteLine("No route found in the graph.");
                 Console.ReadLine();
